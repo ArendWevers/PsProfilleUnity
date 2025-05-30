@@ -1,0 +1,33 @@
+# Voorbeelden
+
+### Maak verbinding
+```powershell
+Connect-Api -Server dc01 -Credentials $Creds`
+```
+
+### Filters
+#### Lijst
+```powershell
+Get-Filter
+```
+
+#### Een in detail
+```powershell
+Get-Filter -Id 5bab8d8102b66c03b0ef8e5e
+```
+
+#### Maak een filter regel
+```powershell
+New-FilterRule -FilterType ADUserGroupMembership -FilterOperator Is -FilterValue 'TRAINING\Print Operators'
+```
+
+#### Maak een nieuw Filter
+```powershell
+New-Filter -Name "Beschrijvende naam" -Comments "Extra uitleg van wat of waarom" -Rules (Array van 0-n FilterRules)
+```
+
+Machine Classe, OS, en Connectie type is te specificeren
+```powershell
+New-Filter -MachineClasses Desktop, MemberServer, TerminalServer -OperatingSystems Windows10, Windows11, Windows2019, Windows2022 -Connections RDPSession, ConsoleSession
+```
+

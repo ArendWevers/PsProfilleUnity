@@ -47,9 +47,14 @@ enum FilterRuleOperator {
 }
 
 [flags()]enum FilterConnnections {
-    None = 0 # todo
-    Local = 1 # todo
-    Remote = 2 # todo
+    RDPSession # todo
+    ICASession # todo
+    PCoIPSession # todo
+    ConsoleSession # todo
+    VMwareBlast # todo
+    AmazonAppStream # todo
+    AmazonWSP # todo
+    DizzionFrame # todo
 }
 
 enum FilterRuleAggregate{
@@ -63,8 +68,8 @@ class FilterRule {
     [string]$Value
 
     FilterRule([FilterRuleType]$type, [FilterRuleOperator]$operator, [string]$value) {
-        $this.Type = $type
-        $this.Operator = $operator
+        $this.ConditionType = $type
+        $this.MatchType = $operator
         $this.Value = $value
     }
 }

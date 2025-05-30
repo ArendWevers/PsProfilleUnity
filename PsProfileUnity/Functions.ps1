@@ -40,11 +40,11 @@ function Invoke-Api {
     )
     $Params = @{
         Method     = $Method
-        Uri        = $script:ApiUrl
+        Uri        = "{0}/api/{1}" -f $script:ApiUrl, $Path
         WebSession = $script:ApiSession
     }
-    if ($PSBoundParameters.Contains("Body")) { $Params["Body"] = $Body }
-    if ($PSBoundParameters.Contains("ContentType")) { $Params["ContentType"] = $ContentType }
+    if ($PSBoundParameters.ContainsKey("Body")) { $Params["Body"] = $Body }
+    if ($PSBoundParameters.ContainsKey("ContentType")) { $Params["ContentType"] = $ContentType }
 
     Invoke-RestMethod @Params
 }
@@ -58,7 +58,7 @@ Function Get-Filter {
     }
 
     $path = "Filter"
-    if ($PSBoundParameters.Contains("Id")) {
+    if ($PSBoundParameters.ContainsKey("Id")) {
         $path = "$path/$id"
         (Invoke-Api -Path $path).tag
     }
@@ -88,6 +88,7 @@ function Update-Filter {
     }
 
 }
+
 function Remove-Filter {
     param (
         [parameter(Mandatory = $true, ParameterSetName = "Id")]
@@ -109,7 +110,7 @@ function Remove-Filter {
     Invoke-Api -Path $path -Method Delete
 }
 
-Funtion New-FilterRule {
+Function New-FilterRule {
     param (
         [Parameter(Mandatory = $true)]            
         [FilterRuleType]$FilterType,
@@ -123,7 +124,7 @@ Funtion New-FilterRule {
     return $Rule
 }
 
-Funtion New-Filter {
+Function New-Filter {
     Param(
         [string]$Name,
         [string]$Comments,

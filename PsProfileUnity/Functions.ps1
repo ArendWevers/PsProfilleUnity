@@ -87,6 +87,7 @@ function Update-Filter {
         throw "You must connect to the API first using Connect-Api."
     }
 
+    # Invoke-Api -Path "Filter/$($InputObject.Id)" -Method Post -Body ($InputObject | ConvertTo-Json) -ContentType "application/json" # todo
 }
 
 function Remove-Filter {
@@ -107,7 +108,7 @@ function Remove-Filter {
         $path = "Filter/$($inputObject.Id)"
     }
     
-    Invoke-Api -Path $path -Method Delete
+    Invoke-Api -Path $path -Method Delete # todo
 }
 
 Function New-FilterRule {
@@ -135,4 +136,16 @@ Function New-Filter {
         [FilterConnnections]$Connections = 1020,
         [FilterRuleAggregate]$Aggregate = "And"
     )
+
+    $Filter = [pscustomobject][ordered]@{
+        Name              = $Name
+        Comments          = $Comments
+        Rules             = $Rules
+        MachineClasses    = $MachineClasses
+        OperatingSystems  = $OperatingSystems
+        SystemEvents      = $SystemEvents
+        Connections       = $Connections
+        Aggregate         = $Aggregate
+    }
+    return $Filter
 }

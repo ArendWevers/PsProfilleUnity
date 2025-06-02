@@ -31,3 +31,21 @@ Machine Classe, OS, en Connectie type is te specificeren
 New-Filter -MachineClasses Desktop, MemberServer, TerminalServer -OperatingSystems Windows10, Windows11, Windows2019, Windows2022 -Connections RDPSession, ConsoleSession
 ```
 
+### Application Restrictions
+```powershell
+#Haal de configuratie op
+$Config = Get-PUConfiguration -Id "683984059744981b603d19cd"
+
+#Zie welke applicatie restricties er zijn
+$Config | Get-PUApplicationRestrictions
+
+#Maak een nieuwe restrictie aan, en voeg deze toe aan de configuratie
+$AppRest = New-PUApplicationRestriction -Action Allow -Match Contains -Value 'Teams.exe'
+$Config | Add-PUApplicationRestriction -Restriction $AppRest
+
+#Zie dat de restrictie is toegevoegd
+$Config | Get-PUApplicationRestrictions
+
+#Update de configuratie
+Update-PUConfiguration -Configuration $Config
+```

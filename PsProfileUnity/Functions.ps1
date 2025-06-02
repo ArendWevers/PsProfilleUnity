@@ -46,7 +46,14 @@ function Invoke-Api {
     if ($PSBoundParameters.ContainsKey("Body")) { $Params["Body"] = $Body }
     if ($PSBoundParameters.ContainsKey("ContentType")) { $Params["ContentType"] = $ContentType }
 
-    Invoke-RestMethod @Params
+    $Result = Invoke-RestMethod @Params
+    if ($Result.Type -ne "success") {
+        throw $Result.Message
+    }
+    else {
+        $Result
+    }
+
 }
 
 Function Get-Filter {
@@ -87,7 +94,7 @@ function Update-Filter {
         throw "You must connect to the API first using Connect-Api."
     }
 
-    # Invoke-Api -Path "Filter/$($InputObject.Id)" -Method Post -Body ($InputObject | ConvertTo-Json) -ContentType "application/json" # todo
+    Invoke-Api -Path "Filter" -Method Post -Body ($InputObject | ConvertTo-Json) -ContentType "application/json"
 }
 
 function Remove-Filter {
@@ -108,7 +115,7 @@ function Remove-Filter {
         $path = "Filter/$($inputObject.Id)"
     }
     
-    Invoke-Api -Path $path -Method Delete # todo
+    Invoke-Api -Path $path -Method Delete
 }
 
 Function New-FilterRule {
@@ -138,14 +145,92 @@ Function New-Filter {
     )
 
     $Filter = [pscustomobject][ordered]@{
-        Name              = $Name
-        Comments          = $Comments
-        Rules             = $Rules
-        MachineClasses    = $MachineClasses
-        OperatingSystems  = $OperatingSystems
-        SystemEvents      = $SystemEvents
-        Connections       = $Connections
-        Aggregate         = $Aggregate
+        Name             = $Name
+        Comments         = $Comments
+        Rules            = $Rules
+        MachineClasses   = $MachineClasses
+        OperatingSystems = $OperatingSystems
+        SystemEvents     = $SystemEvents
+        Connections      = $Connections
+        Aggregate        = $Aggregate
     }
     return $Filter
+}
+
+
+Function Get-Configuration {
+    Param(
+        $Id
+    )
+    if (-not $script:ApiSession) {
+        throw "You must connect to the API first using Connect-Api."
+    }
+
+    $path = "Configuration"
+    if ($PSBoundParameters.ContainsKey("Id")) {
+        $path = "$path/$id"
+        $Result = Invoke-Api -Path $path
+        $Result.tag
+    }
+    else {
+        (Invoke-Api -Path $path).tag.rows
+    }
+}
+
+Function Update-Configuration {
+    param (
+        [parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        $Configuration
+    )
+    if (-not $script:ApiSession) {
+        throw "You must connect to the API first using Connect-Api."
+    }
+
+    Invoke-Api -Path "Configuration" -Method Post -Body ($Configuration | ConvertTo-Json -Depth 10) -ContentType "application/json"
+}
+
+Function Get-ApplicationRestrictions {
+    Param(
+        [parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [PSCustomObject]$Configuration
+    )
+    $Configuration.ApplicationRestrictions | ForEach-Object {
+        [ApplicationRestriction]::new($_.Action, $_.Match, $_.Value, $_.HideApplication, $_.ProgramsAndFeaturesName, $_.FilterId, $_.Description, $_.Disabled, $_.Sequence)
+    }
+}
+
+Function New-ApplicationRestriction {
+    param (
+        [parameter(Mandatory = $true)]
+        [ApplicationRestrictionAction]$Action,
+        [parameter(Mandatory = $true)]
+        [ApplicationRestrictionMatchType]$Match,
+        [parameter(Mandatory = $true)]
+        [string]$Value,
+        [bool]$HideApplication = $false,
+        [string]$ProgramsAndFeaturesName = "",
+        [string]$FilterId = "",
+        [string]$Description = "",
+        [bool]$Disabled = $false,
+        [int]$Sequence = 0
+    )
+
+    $Restriction = [ApplicationRestriction]::new($Action, $Match, $Value, $HideApplication, $ProgramsAndFeaturesName, $FilterId, $Description, $Disabled, $Sequence)
+    return $Restriction
+}
+    
+function Add-ApplicationRestriction {
+    param (
+        [parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [PSCustomObject]$Configuration,
+        [parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [ApplicationRestriction]$Restriction,
+        [int]$Sequence = 0
+    )
+
+    if ($Restriction.Sequence -le 0) {
+        $Restriction.Sequence = ($Configuration.ApplicationRestrictions | Measure-Object -Property Sequence -Maximum).Maximum + 1
+    }
+    
+    $Configuration.ApplicationRestrictions += $Restriction
 }

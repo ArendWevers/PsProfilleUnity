@@ -61,7 +61,7 @@ enum FilterRuleOperator {
     ICASession = 8
     PCoIPSession = 16
     ConsoleSession = 32
-    VMwareBlast  = 64
+    VMwareBlast = 64
     AmazonAppStream = 128
     AmazonWSP = 512
     DizzionFrame = 256
@@ -81,5 +81,44 @@ class FilterRule {
         $this.ConditionType = $type
         $this.MatchType = $operator
         $this.Value = $value
+    }
+}
+
+enum ApplicationRestrictionAction {
+    Allow = 0
+    Deny = 1
+}
+
+enum ApplicationRestrictionMatchType {
+    Contains = 0
+    Equals = 1
+    Hash = 2
+    StartsWith = 3
+    EndsWith = 4
+    Signed = 5
+}
+
+class ApplicationRestriction {
+    [ApplicationRestrictionAction]$Action
+    [ApplicationRestrictionMatchType]$Match
+    [string]$Value
+    [bool]$HideApplication
+    [string]$ProgramsAndFeaturesName
+    $Filter
+    [string]$FilterId
+    [string]$Description
+    [bool]$Disabled
+    [int]$Sequence
+
+    ApplicationRestriction([ApplicationRestrictionAction]$action, [ApplicationRestrictionMatchType]$match, [string]$value, [bool]$hideApplication = $false, [string]$programsAndFeaturesName = "", [string]$filterId = "", [string]$description = "", [bool]$disabled = $false, [int]$sequence = 0) {
+        $this.Action = $action
+        $this.Match = $match
+        $this.Value = $value
+        $this.HideApplication = $hideApplication
+        $this.ProgramsAndFeaturesName = $programsAndFeaturesName
+        $this.FilterId = $filterId
+        $this.Description = $description
+        $this.Disabled = $disabled
+        $this.Sequence = $sequence
     }
 }

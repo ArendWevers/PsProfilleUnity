@@ -1,4 +1,3 @@
-
 Function Connect-Api {
     Param(
         [parameter(Mandatory = $true)]
@@ -30,7 +29,7 @@ Function Connect-Api {
     $script:ApiSession = $session
 }
 
-function Invoke-Api {
+Function Invoke-Api {
     Param(
         [parameter(Mandatory = $true)]    
         [string]$Path,
@@ -57,7 +56,6 @@ function Invoke-Api {
     else {
         $Result
     }
-
 }
 
 Function Get-Filter {
@@ -83,7 +81,7 @@ Function Add-Filter {
     Invoke-Api -Path Filter -Method Post -Body ($Filter | ConvertTo-Json) -ContentType "application/json"
 }
 
-function Update-Filter {
+Function Update-Filter {
     param (
         [parameter(Mandatory = $true, ValueFromPipeline = $true)]
         $InputObject
@@ -92,7 +90,7 @@ function Update-Filter {
     Invoke-Api -Path "Filter" -Method Post -Body ($InputObject | ConvertTo-Json) -ContentType "application/json"
 }
 
-function Remove-Filter {
+Function Remove-Filter {
     param (
         [parameter(Mandatory = $true, ParameterSetName = "Id")]
         [string]$Id,
@@ -100,14 +98,16 @@ function Remove-Filter {
         $inputObject
     )
     
-    if ($PSCmdlet.ParameterSetName -eq "Id") {
-        $path = "Filter/$Id"
-    }
-    elseif ($PSCmdlet.ParameterSetName -eq "InputObject") {
-        $path = "Filter/$($inputObject.Id)"
-    }
+    process {
+        if ($PSCmdlet.ParameterSetName -eq "Id") {
+            $path = "Filter/$Id"
+        }
+        elseif ($PSCmdlet.ParameterSetName -eq "InputObject") {
+            $path = "Filter/$($inputObject.Id)"
+        }
     
-    Invoke-Api -Path $path -Method Delete
+        Invoke-Api -Path $path -Method Delete
+    }
 }
 
 Function New-FilterRule {
@@ -133,18 +133,18 @@ Function New-Filter {
         [FilterOperatingSystems]$OperatingSystems = 262080,
         [FilterSystemEvents]$SystemEvents = 3,
         [FilterConnnections]$Connections = 1020,
-        [FilterRuleAggregate]$Aggregate = "And"
+        [FilterRuleAggregate]$RuleAggregate = "And"
     )
 
     $Filter = [pscustomobject][ordered]@{
         Name             = $Name
         Comments         = $Comments
-        Rules            = $Rules
+        FilterRules      = $Rules
         MachineClasses   = $MachineClasses
         OperatingSystems = $OperatingSystems
         SystemEvents     = $SystemEvents
         Connections      = $Connections
-        Aggregate        = $Aggregate
+        RuleAggregate    = $RuleAggregate
     }
     return $Filter
 }
@@ -205,7 +205,7 @@ Function New-ApplicationRestriction {
     return $Restriction
 }
     
-function Add-ApplicationRestriction {
+Function Add-ApplicationRestriction {
     param (
         [parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [PSCustomObject]$Configuration,

@@ -2,7 +2,7 @@
 
 ### Maak verbinding
 ```powershell
-Connect-Api -Server dc01 -Credentials $Creds`
+Connect-Api -Server dc01 -Credentials $Creds
 ```
 
 ### Filters

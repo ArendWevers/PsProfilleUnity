@@ -38,6 +38,10 @@ function Invoke-Api {
         $Body,
         $ContentType
     )
+    if (-not $script:ApiSession) {
+        throw "You must connect to the API first using Connect-Api."
+    }
+
     $Params = @{
         Method     = $Method
         Uri        = "{0}/api/{1}" -f $script:ApiUrl, $Path
@@ -60,9 +64,6 @@ Function Get-Filter {
     Param(
         $Id
     )
-    if (-not $script:ApiSession) {
-        throw "You must connect to the API first using Connect-Api."
-    }
 
     $path = "Filter"
     if ($PSBoundParameters.ContainsKey("Id")) {
@@ -78,9 +79,6 @@ Function Add-Filter {
     Param(
         $Filter
     )
-    if (-not $script:ApiSession) {
-        throw "You must connect to the API first using Connect-Api."
-    }
 
     Invoke-Api -Path Filter -Method Post -Body ($Filter | ConvertTo-Json) -ContentType "application/json"
 }
@@ -90,9 +88,6 @@ function Update-Filter {
         [parameter(Mandatory = $true, ValueFromPipeline = $true)]
         $InputObject
     )
-    if (-not $script:ApiSession) {
-        throw "You must connect to the API first using Connect-Api."
-    }
 
     Invoke-Api -Path "Filter" -Method Post -Body ($InputObject | ConvertTo-Json) -ContentType "application/json"
 }
@@ -104,9 +99,6 @@ function Remove-Filter {
         [parameter(Mandatory = $true , ValueFromPipeline = $true, ParameterSetName = "InputObject")]
         $inputObject
     )
-    if (-not $script:ApiSession) {
-        throw "You must connect to the API first using Connect-Api."
-    }
     
     if ($PSCmdlet.ParameterSetName -eq "Id") {
         $path = "Filter/$Id"
@@ -162,9 +154,6 @@ Function Get-Configuration {
     Param(
         $Id
     )
-    if (-not $script:ApiSession) {
-        throw "You must connect to the API first using Connect-Api."
-    }
 
     $path = "Configuration"
     if ($PSBoundParameters.ContainsKey("Id")) {
@@ -182,9 +171,6 @@ Function Update-Configuration {
         [parameter(Mandatory = $true, ValueFromPipeline = $true)]
         $Configuration
     )
-    if (-not $script:ApiSession) {
-        throw "You must connect to the API first using Connect-Api."
-    }
 
     Invoke-Api -Path "Configuration" -Method Post -Body ($Configuration | ConvertTo-Json -Depth 10) -ContentType "application/json"
 }

@@ -122,3 +122,83 @@ class ApplicationRestriction {
         $this.Sequence = $sequence
     }
 }
+
+enum ShortcutType {
+    ShellShortcut = 0
+    WebLink = 1
+    PinnedItem = 2
+}
+
+enum ShortcutAction {
+    Create = 0
+    Update = 1
+    DeleteAll = 2
+    DeleteAllProU = 3
+}
+
+enum ShortcutLocation {
+    UserDesktop = 0
+    UserFavorites = 1
+    UserStartMenu = 2
+    UserProgramsGroup = 3
+    UserStartupGroup = 4
+    UserSendTo = 5
+    UserQuickLaunchBar = 6
+    UserLinks = 7
+    AllUsersDesktop = 9
+    AllUsersStartMenu = 10
+}
+
+enum ShortcutWindowStyle {
+    Normal = 0
+    Maximized = 1
+    Minimized = 2
+}
+
+enum ShortcutWindowPinnedLocation {
+    StartMenu = 0
+    Taskbar = 1
+    QuickAccess = 2
+}
+
+Class Shortcut {
+    [ShortcutAction]$Action
+    [string]$Arguments
+    [string]$Icon
+    [int]$IconIndex
+    [ShortcutLocation]$Location
+    [string]$Name
+    [bool]$Overwrite
+    [ShortcutWindowPinnedLocation]$PinnedLocation
+    [bool]$ProcessActionPostLogin
+    [string]$StartIn
+    [string]$Target
+    [ShortcutType]$Type
+    [ShortcutWindowStyle]$WindowStyle
+    $Filter
+    [string]$FilterId
+    [string]$Description
+    [bool]$Disabled
+    [int]$Sequence
+
+    Shortcut([ShortcutAction]$action, [string]$arguments, [string]$icon, [int]$iconIndex, [ShortcutLocation]$location, [string]$name, [bool]$overwrite, [ShortcutWindowPinnedLocation]$pinnedLocation, [bool]$processActionPostLogin, [string]$startIn, [string]$target, [ShortcutType]$type, [ShortcutWindowStyle]$windowStyle, $filter = $null, [string]$filterId, [string]$description, [bool]$disabled, [int]$sequence) {
+        $this.Action = $action
+        $this.Arguments = $arguments
+        $this.Icon = $icon
+        $this.IconIndex = $iconIndex
+        $this.Location = $location
+        $this.Name = $name
+        $this.Overwrite = $overwrite
+        $this.PinnedLocation = $pinnedLocation
+        $this.ProcessActionPostLogin = $processActionPostLogin
+        $this.StartIn = $startIn
+        $this.Target = $target
+        $this.Type = $type
+        $this.WindowStyle = $windowStyle
+        $this.Filter = $filter
+        $this.FilterId = $filterId
+        $this.Description = $description
+        $this.Disabled = $disabled
+        $this.Sequence = $sequence
+    }
+}

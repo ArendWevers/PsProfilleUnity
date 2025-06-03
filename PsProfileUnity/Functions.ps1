@@ -220,3 +220,86 @@ Function Add-ApplicationRestriction {
     
     $Configuration.ApplicationRestrictions += $Restriction
 }
+
+
+Function Get-Shortcuts {
+    Param(
+        [parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [PSCustomObject]$Configuration
+    )
+    $Configuration.Shortcuts | ForEach-Object {
+        [Shortcut]::new($_.Action, $_.Arguments, $_.Icon, $_.IconIndex, $_.Location, $_.Name, $_.Overwrite, $_.PinnedLocation, $_.ProcessActionPostLogin, $_.StartIn, $_.Target, $_.Type, $_.WindowStyle, $_.Filter, $_.FilterId, $_.Description, $_.Disabled, $_.Sequence)
+    }
+}
+
+Function New-Shortcut {
+    param (
+        [parameter(Mandatory = $true)]
+        [ShortcutType]$Type,
+        [parameter(Mandatory = $true)]
+        [ShortcutAction]$Action,
+        [parameter(Mandatory = $true)]
+        [string]$Target,
+        [ShortcutLocation]$ShortcutLocation = [ShortcutLocation]::UserDesktop,
+        [string]$Name,
+        [ShortcutWindowStyle]$WindowStyle = [ShortcutWindowStyle]::Normal,
+        [string]$Arguments = "",
+        [string]$Icon = "", 
+        [int]$IconIndex = 0,
+        [ShortcutWindowPinnedLocation]$PinnedLocation = [ShortcutWindowPinnedLocation]::StartMenu,
+        [bool]$Overwrite = $false,
+        [bool]$ProcessActionPostLogin = $false,
+        [string]$StartIn = "",
+        [string]$Filter = $null,
+        [string]$FilterId = $null,
+        [string]$Description = "",
+        [bool]$Disabled = $false,
+        [int]$Sequence = 0
+    )
+
+    if ($Type -in ([ShortcutType]::ShellShortcut, [ShortcutType]::WebLink) -and -not $Name) {
+        throw "Name is required for ShellShortcut and WebLink types."
+    }
+    if ($Type -eq [ShortcutType]::WebLink) {
+        if ($Arguments) {
+            throw "Arguments are not applicable for WebLink type."
+        }
+        if ($StartIn) {
+            throw "StartIn is not applicable for WebLink type."
+        }
+    }
+    if ($Type -eq [ShortcutType]::PinnedItem) {
+        if ($Name) {
+            throw "Name is not required for PinnedItem type."
+        }
+        if ($Arguments) {
+            throw "Arguments are not applicable for PinnedItem type."
+        }
+        if ($StartIn) {
+            throw "StartIn is not applicable for PinnedItem type."
+        }
+        if ($Icon) {
+            throw "Icon is not applicable for PinnedItem type."
+        }
+        $ProcessActionPostLogin = $true # Pinned items are always processed post-login
+    }
+
+    $Shortcut = [Shortcut]::new($Action, $Arguments, $Icon, $IconIndex, $ShortcutLocation, $Name, $Overwrite, $PinnedLocation, $ProcessActionPostLogin, $StartIn, $Target, $Type, $WindowStyle, $Filter, $FilterId, $Description, $Disabled, $Sequence)
+    return $Shortcut
+}
+    
+Function Add-Shortcut {
+    param (
+        [parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [PSCustomObject]$Configuration,
+        [parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [Shortcut]$Shortcut,
+        [int]$Sequence = 0
+    )
+
+    if ($Shortcut.Sequence -le 0) {
+        $Shortcut.Sequence = ($Configuration.Shortcuts | Measure-Object -Property Sequence -Maximum).Maximum + 1
+    }
+    
+    $Configuration.Shortcuts += $Shortcut
+}

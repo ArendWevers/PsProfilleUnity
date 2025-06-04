@@ -202,3 +202,127 @@ Class Shortcut {
         $this.Sequence = $sequence
     }
 }
+
+enum PortabilityOperation {
+    Merge = 0
+    Replace = 1
+    Exclude = 2
+}
+
+enum PortabilityScope {
+    Tree = 0
+    Key = 1 # todo
+    Value = 2
+}
+
+enum PortabilityHive {
+    HKCU = 0
+    HKLM = 1
+}
+
+enum PortabilityFolder {
+    ApplicationData = 0
+    Cookies = 1 # todo
+    Desktop = 2 # todo
+    Favorites = 3 # todo
+    History = 4 # todo
+    MyDocuments = 5 # todo
+    ProgramGroup = 6 # todo
+    Recent = 7
+    SendTo = 8 # todo
+    Startmenu = 9
+    StartupGroup = 10 # todo
+    UserProfile = 11
+    LocalApplicationData = 12
+    ProgramFiles = 13 # todo
+    SystemDrive = 14 # todo
+    SystemRoot = 15 # todo
+    MyMusic = 16 # todo
+    MyPictures = 17 # todo
+    MyVideos = 18 # todo
+    TemporaryInternetFiles = 19 # todo
+    NetHood = 20
+    PrintHood = 21 # todo
+    Templates = 22 # todo
+    Links = 23 # todo
+    Contacts = 24 # todo
+    Searches = 25 # todo
+    RoamingTiles = 26 # todo
+    Libraries = 27 # todo
+    Custom = 28
+}
+
+class PortabilityRegistryRule {
+    [PortabilityOperation]$Operation
+    [PortabilityScope]$Scope
+    [PortabilityHive]$Hive
+    [string]$Path
+
+    PortabilityRegistryRule([PortabilityOperation]$operation, [PortabilityScope]$scope, [PortabilityHive]$hive, [string]$path) {
+        $this.Operation = $operation
+        $this.Scope = $scope
+        $this.Hive = $hive
+        $this.Path = $path
+    }
+}
+
+class PortabilityFilesystemRule {
+    [PortabilityOperation]$Operation
+    [PortabilityFolder]$Folder
+    [string]$Path
+
+    PortabilityFilesystemRule([PortabilityOperation]$operation, [PortabilityFolder]$folder, [string]$path) {
+        $this.Operation = $operation
+        $this.Folder = $folder
+        $this.Path = $path
+    }
+}
+
+class Portability {
+    [string]$Name
+    [string]$Comments
+    [PortabilityRegistryRule[]]$RegistryRules
+    [PortabilityFilesystemRule[]]$FilesystemRules
+    [string]$Id
+    [bool]$Disabled
+    [datetime]$DateCreated
+    [datetime]$DateLastModified
+
+    Portability([string]$name, [string]$comments, [PortabilityRegistryRule[]]$registryRules, [PortabilityFilesystemRule[]]$filesystemRules, [string]$id = "", [bool]$disabled = $false) {
+        $this.Name = $name
+        $this.Comments = $comments
+        $this.RegistryRules = $registryRules
+        $this.FilesystemRules = $filesystemRules
+        $this.Id = $id
+        $this.Disabled = $disabled
+    }
+
+    Portability([string]$name, [string]$comments, [PortabilityRegistryRule[]]$registryRules, [PortabilityFilesystemRule[]]$filesystemRules, [string]$id = "", [bool]$disabled = $false , [datetime]$dateCreated, [datetime]$dateLastModified) {
+        $this.Name = $name
+        $this.Comments = $comments
+        $this.RegistryRules = $registryRules
+        $this.FilesystemRules = $filesystemRules
+        $this.Id = $id
+        $this.Disabled = $disabled
+        $this.DateCreated = $dateCreated
+        $this.DateLastModified = $dateLastModified
+    }
+
+    Portability([string]$name, [string]$comments, [object[]]$registryRules, [object[]]$filesystemRules, [string]$id = "", [bool]$disabled = $false , [datetime]$dateCreated, [datetime]$dateLastModified) {
+        $RegRules = $registryRules | ForEach-Object {
+                [PortabilityRegistryRule]::new($_.Operation, $_.Scope, $_.Hive, $_.Path)
+        }
+        $FileRules = $filesystemRules | ForEach-Object {
+                [PortabilityFilesystemRule]::new($_.Operation, $_.Folder, $_.Path)
+        }
+
+        $this.Name = $name
+        $this.Comments = $comments
+        $this.RegistryRules = $RegRules
+        $this.FilesystemRules = $FileRules
+        $this.Id = $id
+        $this.Disabled = $disabled
+        $this.DateCreated = $dateCreated
+        $this.DateLastModified = $dateLastModified
+    }
+}

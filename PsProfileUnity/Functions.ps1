@@ -303,3 +303,108 @@ Function Add-Shortcut {
     
     $Configuration.Shortcuts += $Shortcut
 }
+
+Function Get-Portability  {
+    Param(
+        $Id
+    )
+
+    $path = "portability"
+    if ($PSBoundParameters.ContainsKey("Id")) {
+        $path = "$path/$id"
+        $Result = Invoke-Api -Path $path
+        $Result.tag
+        
+        # [Portability]::new(
+        #     $Result.tag.Name,
+        #     $Result.tag.Comments,
+        #     $Result.tag.RegistryRules,
+        #     $Result.tag.FilesystemRules,
+        #     $Result.tag.Id,
+        #     $Result.tag.Disabled,
+        #     $Result.tag.DateCreated,
+        #     $Result.tag.DateModified
+        # ) # todo
+    }
+    else {
+        (Invoke-Api -Path $path).tag.rows
+    }
+}
+
+Function Update-Portability {
+    param (
+        [parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        $Portability
+    )
+
+    Invoke-Api -Path "portability" -Method Post -Body ($Portability | ConvertTo-Json -Depth 10) -ContentType "application/json"
+}
+
+Function Remove-Portability {
+    param (
+        [parameter(Mandatory = $true, ParameterSetName = "Id")]
+        [string]$Id,
+        [parameter(Mandatory = $true , ValueFromPipeline = $true, ParameterSetName = "InputObject")]
+        $inputObject
+    )
+    
+    process {
+        if ($PSCmdlet.ParameterSetName -eq "Id") {
+            $path = "Portability/$Id"
+        }
+        elseif ($PSCmdlet.ParameterSetName -eq "InputObject") {
+            $path = "Portability/$($inputObject.Id)"
+        }
+    
+        Invoke-Api -Path $path -Method Delete
+    }
+}
+
+Function New-PortabilityRegistryRule {
+    param (
+        [Parameter(Mandatory = $true)]            
+        [PortabilityOperation]$Operation,
+        [Parameter(Mandatory = $true)]    
+        [PortabilityScope]$Scope,
+        [Parameter(Mandatory = $true)]
+        [PortabilityHive]$Hive,
+        [Parameter(Mandatory = $true)]
+        [string]$Path
+    )
+
+    $Rule = [PortabilityRegistryRule]::new($Operation, $Scope, $Hive, $Path)
+    return $Rule
+}
+
+Function New-PortabilityFilesystemRule {
+    param (
+        [Parameter(Mandatory = $true)]            
+        [PortabilityOperation]$Operation,
+        [Parameter(Mandatory = $true)]    
+        [PortabilityFolder]$Folder,
+        [string]$Path = ""
+    )
+    $Rule = [PortabilityFilesystemRule]::new($Operation, $Folder, $Path)
+    return $Rule
+}
+
+Function New-portabilityRule {
+    Param(
+        [parameter(Mandatory = $true)]
+        [string]$Name,
+        [string]$Comments,
+        [PortabilityRegistryRule[]]$RegistryRules,
+        [PortabilityFilesystemRule[]]$FilesystemRules,
+        [bool]$Disabled = $false
+    )
+
+    $Portability = [Portability]::new(
+        $Name,
+        $Comments,
+        $RegistryRules,
+        $FilesystemRules,
+        "", # Blank ID for new portability rules
+        $Disabled
+    )
+    return $Portability
+}

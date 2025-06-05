@@ -175,6 +175,23 @@ Function Update-Configuration {
     Invoke-Api -Path "Configuration" -Method Post -Body ($Configuration | ConvertTo-Json -Depth 10) -ContentType "application/json"
 }
 
+Function Deploy-Configuration {
+    param (
+        [parameter(Mandatory = $true, ValueFromPipeline = $true, parameterSetName = "Configuration")]
+        [PSCustomObject]$Configuration,
+        [parameter(Mandatory = $true, ValueFromPipelineByPropertyName = "Id", parameterSetName = "Id")]
+        [string]$Id
+    )
+    if ($PSCmdlet.ParameterSetName -eq "Configuration") {
+        $Body = @{ConfigurationId = $Configuration.Id}
+    } elseif ($PSCmdlet.ParameterSetName -eq "Id") {
+        $Body = @{ConfigurationId = $Id}
+    }
+    
+    Invoke-Api -Path "server/deploy/configuration" -Method Post -Body ($Body | ConvertTo-Json) -ContentType "application/json"
+}
+
+
 Function Get-ApplicationRestrictions {
     Param(
         [parameter(Mandatory = $true, ValueFromPipeline = $true)]
